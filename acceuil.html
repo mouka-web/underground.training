@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>underground</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="banner">
+        <video autoplay loop muted playsinline>
+            <source src="underrrr.webm" type="video/mp4">
+        </video>
+        <div class="navbar">
+            <img class="logo" src="logo1.png">
+        </div>
+        <div class="content">
+            <h1>EXPLORE THE WORLD</h1>
+            <div id="codeForm" class="code-form">
+                <form id="accessForm" onsubmit="return checkCode()">
+                    <input type="password" id="adminCode" placeholder="Enter admin code">
+                    <input type="password" id="accessCode" placeholder="Enter access code">
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+            <div id="exploreButton">
+                <button type="button" onclick="showCodeForm()">Explore</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showCodeForm() {
+            document.getElementById('codeForm').style.display = 'block';
+            document.getElementById('exploreButton').style.display = 'none';
+        }
+
+        function checkCode() {
+            var enteredCode = document.getElementById('accessCode').value.trim();
+            var adminCode = document.getElementById('adminCode').value.trim();
+            var correctCode = "1991"; // Replace with your correct access code
+            var correctAdminCode = "aziz2772"; // Replace with your correct admin code
+
+            if (enteredCode === correctCode && adminCode === correctAdminCode) {
+                window.location.href = 'underground.html';
+                return false; // Prevent form from submitting normally
+            } else {
+                alert('Wrong code. Please try again.');
+                return false; // Prevent form from submitting normally
+            }
+        }
+    </script>
+</body>
+</html>

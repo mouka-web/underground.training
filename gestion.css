@@ -1,0 +1,137 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh; /* Hauteur minimale de la vue pour couvrir l'écran entier */
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #7fafdb;;
+    color: black;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 10px; /* Bordures arrondies pour la sidebar */
+}
+
+.logo {
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 10px; /* Bordures arrondies pour le tableau */
+    overflow: hidden; /* Pour gérer les bordures arrondies autour du tableau */
+}
+
+table, th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #0858a1; /* Couleur de fond bleue pour les titres de tableau */
+    color: white; /* Texte blanc */
+}
+
+.form-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color:#7fafdb;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 20px;
+}
+
+.form-group {
+    margin-bottom: 10px;
+    text-align: center; /* Centrer le texte dans les éléments de formulaire */
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="number"],
+select,
+button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px; /* Bordures arrondies pour les champs de saisie et les boutons */
+    width: 100%;
+    box-sizing: border-box; /* Pour inclure le padding dans la largeur */
+    margin-bottom: 10px;
+    border-radius: 15px;
+    border-color: #0858a1;
+}
+
+button {
+    background-color: #0858a1; /* Couleur de fond bleue pour les boutons */
+    color: white; /* Texte blanc */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transition fluide pour l'animation */
+    width: auto; /* Taille automatique pour aligner les boutons sur la même ligne */
+    margin-right: 5px; /* Marge à droite pour séparer les boutons */
+    font-size: 12px; /* Taille de police plus petite pour les boutons */
+}
+
+button:hover {
+    background-color: #061824; /* Couleur de fond bleue plus foncée au survol */
+}
+.payment-button {
+    background-color: green; /* Couleur initiale du bouton */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.payment-button.expired {
+    background-color: red; /* Couleur du bouton lorsqu'il est expiré */
+}
+.save-button {
+    background-color: #ffffff; /* Couleur verte par exemple */
+    color: #0858a1;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 20px; /* Bordure arrondie */
+}
+
+.save-button:hover {
+    background-color: #061824; /* Légère variation de couleur au survol */
+}
+.profile-photo {
+    width: 100px;
+    height: auto;
+    border-radius: 60px;
+    margin-top: 10px;
+    
+}
+
+
+

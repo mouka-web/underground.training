@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="gestion.css">
+    <title>Underground</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <style>
+        /* Styles pour l'icône de recherche */
+        .search-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .search-container input[type="text"] {
+            padding: 8px;
+            border-radius: 15px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            width: 200px;
+        }
+        .search-container button {
+            padding: 8px 12px;
+            border-radius: 20px;
+            background-color: #0858a1;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #063f7a;
+        }
+        .content h2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .content h2 img {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+        .expired {
+            background-color: red; /* Classe pour le bouton "Payé" expiré */
+            color: white;
+        }
+      
+        .form-container {
+            display: none; /* Cacher le formulaire par défaut */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="logo1.png" alt="Logo">
+            </div>
+        </div>
+
+        <div class="content">
+            <a href="#" id="saveDataLink" onclick="saveData()">Enregistrer</a>
+
+      
+            <h2>Liste des abonnements
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Rechercher par CIN ou par nom...">
+                    <button onclick="search()">Rechercher</button>
+                </div>
+            </h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>CIN</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Téléphone</th>
+                        <th>Abonnement</th>
+                        <th>Prix</th>
+                        <th>Date d'abonnement</th>
+                        <th>Actions</th>
+                        <th>Payé</th>
+                        <th>Photo</th>
+                    </tr>
+                </thead>
+                <tbody id="abonnementsBody">
+                    <!-- Les données seront ajoutées ici dynamiquement par JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="form-container" id="editFormContainer">
+        <h2>Modifier l'abonnement</h2>
+        <form id="editForm" enctype="multipart/form-data">
+            <input type="hidden" id="editId" name="id">
+            <div class="form-group">
+                <label for="editCin">Numéro CIN:</label>
+                <input type="text" id="editCin" name="cin" required>
+            </div>
+            <div class="form-group">
+                <label for="editNom">Nom:</label>
+                <input type="text" id="editNom" name="nom" required>
+            </div>
+            <div class="form-group">
+                <label for="editPrenom">Prénom:</label>
+                <input type="text" id="editPrenom" name="prenom" required>
+            </div>
+            <div class="form-group">
+                <label for="editTelephone">Numéro de téléphone:</label>
+                <input type="tel" id="editTelephone" name="telephone" required>
+            </div>
+            <div class="form-group">
+                <label for="editAbonnement">Type d'abonnement:</label>
+                <select id="editAbonnement" name="abonnement" required onchange="updatePrice()">
+                    <option value="1mois">1 mois</option>
+                    <option value="3mois">3 mois</option>
+                    <option value="6mois">6 mois</option>
+                    <option value="12mois">12 mois</option>
+                    <option value="autre">Autre</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="editPrix">Prix:</label>
+                <input type="number" id="editPrix" name="prix" required readonly>
+            </div>
+            <label for="editDate">Date d'abonnement:</label>
+            <input type="date" id="editDate" name="created_at" >
+            <div class="form-group">
+                <label for="editPhoto">Photo actuelle:</label>
+                <img id="currentPhoto" class="profile-photo" src="" alt="Photo de l'abonné">
+                <input type="file" id="editPhoto" name="photo" accept="image/*">
+                <button type="button" onclick="openCamera()">Prendre une photo</button>
+                <video id="video" style="display:none;" autoplay></video>
+                <button type="button" onclick="capturePhoto()" style="display:none;" id="captureButton">Capturer</button>
+            </div>
+            <button type="submit" class="save-button">Enregistrer les modifications</button>
+            <button type="reset" class="save-button" onclick="cancelEdit()">Annuler</button>
+        </form>
+    </div>
+    
+    <script>
+        function openCamera() {
+            const video = document.getElementById('video');
+            const captureButton = document.getElementById('captureButton');
+            
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    captureButton.style.display = 'block';
+                })
+                .catch(err => {
+                    console.error("Erreur d'accès à la caméra: ", err);
+                });
+        }
+    
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const photoInput = document.getElementById('editPhoto');
+            const canvas = document.createElement('canvas');
+            canvas.width = 320; // Ajustez la largeur
+            canvas.height = 240; // Ajustez la hauteur
+            
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const dataURL = canvas.toDataURL('image/jpeg');
+            document.getElementById('currentPhoto').src = dataURL;
+            
+            // Convertir l'image en fichier pour le formulaire
+            fetch(dataURL)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], "photo.jpg", { type: "image/jpeg" });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    photoInput.files = dataTransfer.files;
+                });
+        }
+    </script>
+    
+    <style>
+      .profile-photo {
+    width: 100px;
+    height: 100px; /* Fixer la hauteur */
+    border-radius: 50%; /* Pour un cercle parfait */
+    margin-top: 10px;
+}
+
+        video {
+            width: 320px; /* Ajustez la taille de la vidéo */
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchAndDisplayData();
+            updatePrice(); // Appel initial pour le prix
+        });
+
+        function fetchAndDisplayData() {
+            fetch('gestion.php')
+            .then(response => response.text())
+            .then(data => {
+                const tbody = document.getElementById('abonnementsBody');
+                tbody.innerHTML = '';
+
+                if (data.trim() !== '') {
+                    const rows = data.trim().split("\n");
+                    rows.forEach(row => {
+                        const columns = row.split(",");
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${columns[0]}</td>
+                            <td>${columns[1]}</td>
+                            <td>${columns[2]}</td>
+                            <td>${columns[3]}</td>
+                            <td>${columns[4]}</td>
+                            <td>${columns[5]}</td>
+                            <td>${columns[6]}</td>
+                            <td>
+                                <button class="edit-button" onclick="editRow(${columns[7]}, '${columns[0]}', '${columns[1]}', '${columns[2]}', '${columns[3]}', '${columns[4]}', '${columns[5]}', '${columns[6]}', '${columns[8]}')">Modifier</button>
+                                <button onclick="deleteRow(${columns[7]})">Supprimer</button>
+                            </td>
+                            <td>
+                                <button class="payment-button" id="paymentButton_${columns[7]}" data-subscription-date="${columns[6]}" data-subscription-duration="${columns[4]}">Payé</button>
+                            </td>
+                            <td>
+ <img src="data:image/jpeg;base64,${columns[8]}" alt="Photo de l'abonné" class="profile-photo" onclick="showPhoto('data:image/jpeg;base64,${columns[8]}')">                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    setupPaymentButtons();
+                } else {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="10">Aucune donnée disponible</td>`;
+                    tbody.appendChild(tr);
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        }
+
+        function setupPaymentButtons() {
+            const now = new Date().getTime();
+            const paymentButtons = document.querySelectorAll('.payment-button');
+
+            paymentButtons.forEach(button => {
+                const subscriptionDate = new Date(button.dataset.subscriptionDate).getTime();
+                const duration = parseInt(button.dataset.subscriptionDuration);
+                const expirationDate = new Date(subscriptionDate);
+                expirationDate.setMonth(expirationDate.getMonth() + duration);
+                const differenceInDays = Math.ceil((expirationDate.getTime() - now) / (1000 * 3600 * 24));
+
+                if (differenceInDays <= 0) {
+                    button.classList.add('expired');
+                } else {
+                    button.classList.remove('expired');
+                }
+            });
+        }
+        function showPhoto(photoSrc) {
+    const img = document.createElement('img');
+    img.src = photoSrc;
+    img.style.width = '300px'; // Ajuste la taille selon tes besoins
+    img.style.borderRadius = '15px';
+    img.style.border = '2px solid #0858a1';
+
+    // Crée une fenêtre modale pour afficher l'image
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.onclick = () => document.body.removeChild(modal);
+
+    modal.appendChild(img);
+    document.body.appendChild(modal);
+}
+
+
+        document.getElementById('editForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('update.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data);
+                fetchAndDisplayData();
+                this.reset();
+                document.getElementById('editFormContainer').style.display = 'none';
+            })
+            .catch(error => console.error('Erreur:', error));
+        });
+
+        function editRow(id, cin, nom, prenom, telephone, abonnement, prix, createdAt, photo) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editCin').value = cin;
+            document.getElementById('editNom').value = nom;
+            document.getElementById('editPrenom').value = prenom;
+            document.getElementById('editTelephone').value = telephone;
+            document.getElementById('editAbonnement').value = abonnement;
+            document.getElementById('editPrix').value = prix;
+            
+            document.getElementById('currentPhoto').src = `data:image/jpeg;base64,${photo}`;
+            document.getElementById('editFormContainer').style.display = 'block';
+        }
+        function deleteRow(id) {
+    if (confirm('Voulez-vous vraiment supprimer cet abonnement ?')) {
+        fetch('delete.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Supprimer la ligne du tableau sans actualiser la page
+                const tbody = document.getElementById('abonnementsBody');
+                const rows = Array.from(tbody.rows);
+                const rowToDelete = rows.find(row => row.cells[7].innerText == id);
+                if (rowToDelete) {
+                    tbody.removeChild(rowToDelete);
+                }
+            } else {
+                alert('Erreur lors de la suppression de l\'abonnement : ' + data.error);
+            }
+        })
+        .catch(error => console.error('Erreur :', error));
+    }
+}
+
+
+
+
+
+        function cancelEdit() {
+            document.getElementById('editFormContainer').style.display = 'none';
+        }
+
+        function search() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#abonnementsBody tr');
+
+            rows.forEach(row => {
+                const cin = row.cells[0].textContent.toLowerCase();
+                const nom = row.cells[1].textContent.toLowerCase();
+                if (cin.includes(input) || nom.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function updatePrice() {
+            const abonnement = document.getElementById('editAbonnement').value;
+            let price = 0;
+
+            switch (abonnement) {
+                case '1mois':
+                    price = 150;
+                    break;
+                case '3mois':
+                    price = 450;
+                    break;
+                case '6mois':
+                    price = 900;
+                    break;
+                case '12mois':
+                    price = 1800;
+                    break;
+                case 'autre':
+                    price = prompt("Entrez le prix:");
+                    break;
+            }
+            document.getElementById('editPrix').value = price;
+        }
+        function saveData() {
+    const tbody = document.getElementById('abonnementsBody');
+    const rows = Array.from(tbody.rows);
+    let csvContent = "CIN,Nom,Prénom,Abonnement,Date d'abonnement\r\n"; // En-tête du CSV
+
+    rows.forEach(row => {
+        const cin = row.cells[0].innerText;
+        const nom = row.cells[1].innerText;
+        const prenom = row.cells[2].innerText;
+        const abonnement = row.cells[4].innerText;
+        const createdAt = row.cells[6].innerText;
+
+        csvContent += `${cin},${nom},${prenom},${abonnement},${createdAt}\r\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const timestamp = new Date().toISOString().replace(/[:]/g, "-"); // Formater la date
+    const filename = `abonnements_${timestamp}.csv`;
+
+    const link = document.createElement("a");
+    link.setAttribute("href", URL.createObjectURL(blob));
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+
+    link.click(); // Simule un clic pour déclencher le téléchargement
+    document.body.removeChild(link); // Supprime le lien après le téléchargement
+}
+
+
+
+    </script>
+    
+</body>
+</html>
